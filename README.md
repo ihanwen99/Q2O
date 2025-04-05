@@ -1,6 +1,3 @@
-# Quantum4DB
+# Quantum-augmented Query Optimizaer
 
-This repo contains:
-
-1. Quantum4Demo
-2. Extracted quantum algorithm: Please directly refer to the `/quantum-alg` folder.
+Directly start the application: `python app.py`
