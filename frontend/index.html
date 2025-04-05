@@ -1,0 +1,1065 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/vue@3.2.45/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/pev2/dist/pev2.umd.js"></script>
+<link
+        href="https://unpkg.com/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+/>
+<link rel="stylesheet" href="https://unpkg.com/pev2/dist/pev2.css"/>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Database System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* USC */
+        :root {
+            --usc-cardinal: #990000;
+            --usc-gold: #FFCC00;
+            --usc-gray: #F2F2F2;
+            --usc-light-gold: #FFF5E6;
+        }
+
+        body {
+            background-color: var(--usc-gray);
+            font-family: Arial, sans-serif;
+        }
+
+        .hero {
+            padding: 2rem;
+            background-color: var(--usc-cardinal);
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        .card-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--usc-cardinal);
+            color: var(--usc-gold);
+            border-bottom: 3px solid var(--usc-gold);
+        }
+
+
+        .btn-primary {
+            background-color: var(--usc-cardinal);
+            border: none;
+        }
+
+        .btn-primary:hover, .btn-primary:active {
+            background-color: var(--usc-gold);
+            color: var(--usc-cardinal);
+        }
+
+        .form-label {
+            color: var(--usc-cardinal);
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .superscript {
+            vertical-align: super;
+            font-size: 0.75em;
+        }
+
+        h4 {
+            color: var(--usc-cardinal);
+        }
+
+        #sqlInfo {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background-color: #f9f9f9;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            overflow-y: hidden;
+            font-weight: 600;
+        }
+
+        #joinOrderHint, #nlDBCost {
+            font-weight: bold;
+            font-size: 1.25rem;
+            color: var(--usc-cardinal);
+            background-color: var(--usc-light-gold);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .custom-table-header {
+            background-color: var(--usc-gold);
+            color: var(--usc-cardinal);
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        thead {
+            background-color: var(--usc-gold) !important;
+            color: var(--usc-cardinal) !important;
+            font-weight: bold;
+        }
+
+
+        table.table-striped tbody tr:nth-child(odd) {
+            background-color: #FFF5E6;
+        }
+
+        table.table-striped tbody tr:nth-child(even) {
+            background-color: #FFFFFF;
+        }
+
+        table.table-striped tbody td {
+            color: var(--usc-cardinal);
+        }
+
+        table.table {
+            border: 1px solid var(--usc-cardinal);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table.table thead {
+            background-color: var(--usc-cardinal);
+            color: var(--usc-gold);
+            font-size: 1rem;
+        }
+
+        table.table tbody tr:nth-child(odd) {
+            background-color: var(--usc-light-gold);
+        }
+
+        table.table tbody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        table.table tbody td {
+            color: var(--usc-cardinal);
+        }
+
+        table.table-hover tbody tr:hover {
+            background-color: var(--usc-gold);
+            color: var(--usc-cardinal);
+            font-weight: bold;
+        }
+
+        .timing-label {
+            color: var(--usc-cardinal);
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        thead {
+            background-color: var(--usc-gold) !important;
+            color: var(--usc-cardinal) !important;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+<!-- Hero Section -->
+<div class="hero card-header">
+    <h1 class="title">Welcome To</h1>
+    <h1 class="title">
+        Q<span class="superscript">2</span>O: Quantum-augmented Query Optimizer
+    </h1>
+</div>
+
+<div class="container">
+    <!-- Form Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form>
+                <div class="row">
+                    <!-- Select Benchmark -->
+                    <div class="col-md-6 mb-3">
+                        <label for="benchmark" class="form-label">Select Benchmark</label>
+                        <select class="form-select" id="benchmark">
+                            <option value="" disabled selected>Choose a Benchmark</option>
+                            {% for benchmark in benchmarks %}
+                                <option value="{{ benchmark }}">{{ benchmark }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Select SQL File -->
+                    <div class="col-md-6 mb-3">
+                        <label for="sqlFile" class="form-label">Select SQL File</label>
+                        <select class="form-select" id="sqlFile">
+                            <option value="" disabled selected>Select a SQL File</option>
+                            {% for file in files %}
+                                <option value="{{ file }}">{{ file }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SQL File Content -->
+                <div class="mb-3">
+                    <label for="sqlInfo" class="form-label">SQL File Content</label>
+                    <div id="sqlInfo" style="
+                        font-family: 'Courier New', Courier, monospace;
+                        font-size: 14px;
+                        line-height: 1.5;
+                        background-color: #f9f9f9;
+                        color: #333;
+                        border: 1px solid #ddd;
+                        padding: 10px;
+                        border-radius: 5px;
+                        white-space: pre-wrap;
+                        overflow-y: hidden;
+                        width: 100%;
+                    "></div>
+                </div>
+
+                <!-- Run Button -->
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary btn-lg" id="runBtn">
+                        <i class="fas fa-play-circle"></i> Run Query
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container" class="OutputSection">
+    <div class="row d-flex align-items-stretch">
+        <!-- Quantum Output -->
+        <div class="col-md-6 d-flex">
+            <div class="card shadow-sm flex-grow-1">
+                <div class="card-header">
+                    <strong>Quantum-Augmented</strong>
+                </div>
+
+                <div class="container mt-3">
+                    <!-- Quantum Result -->
+                    <h4 class="text-center mb-6">Query Results</h4>
+                    <table class="table table-striped table-bordered">
+                        <thead id="quantumResultsHeader">
+                        </thead>
+                        <tbody id="quantumResultsTable">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Join Order Section -->
+                <div class="card-body text-center">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <h4 class="text-center mb-6">Join Order:&nbsp;</h4>
+                        <h4 id="joinOrder" class="text-center mb-6"></h4>
+                    </div>
+                    <h3 id="joinOrderHint"></h3>
+                </div>
+                <!-- Timing Information Section -->
+                <div class="container mt-1">
+                    <h4 class="text-center mb-6">Timing Information</h4>
+                    <table class="table table-hover table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Metrics</th>
+                            <th>Time (ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody id="quantumTimingTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Default PostgreSQL Output -->
+        <div class="col-md-6 d-flex">
+            <div class="card shadow-sm flex-grow-1">
+                <div class="card-header">
+                    <strong>Default PostgreSQL</strong>
+                </div>
+                <div class="container mt-4">
+                    <!-- PostgreSQL Result -->
+                    <h4 class="text-center mb-4">Query Results</h4>
+                    <table class="table table-striped table-bordered">
+                        <thead id="postgresqlResultsHeader" class="custom-table-header">
+                        </thead>
+                        <tbody id="postgresqlResultsTable">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Timing Information Section -->
+                <div class="container mt-4">
+                    <h4 class="text-center mb-4">Timing Information</h4>
+                    <table class="table table-bordered table-hover">
+                        <thead class="custom-table-header">
+                        <tr>
+                            <th>Timing Metric</th>
+                            <th>Time (ms)</th>
+                        </tr>
+                        </thead>
+                        <tbody id="postgresqlTimingTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visualization Buttons -->
+    <div class="row mt-3">
+        <div class="col-md-6 text-center">
+            <button class="btn btn-warning" id="visualizeQuantumBtn">
+                <i class="fas fa-chart-bar"></i> Visualize Q<span class="superscript">2</span>O Query Plan
+            </button>
+        </div>
+        <div class="col-md-6 text-center">
+            <button class="btn btn-warning" id="visualizePostgresBtn">
+                <i class="fas fa-chart-bar"></i> Visualize PostgreSQL Plan
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<div class="container plan-compare">
+    <br>
+    <div id="vueApp1">
+        <pev2 :plan-source="plan" plan-query=""/>
+    </div>
+    <br>
+    <div id="vueApp2">
+        <pev2 :plan-source="plan" plan-query=""/>
+    </div>
+</div>
+
+
+<div class="continer">
+    <hr>
+    <h1 class="text-center mt-4">Explore Q<span class="superscript">2</span>O's NL-Solver</h1>
+
+
+    <!-- Quantum Annealing Time -->
+    <div class="row mt-3 justify-content-center">
+        <div class="col-md-8 text-center">
+            <label for="annealingTimeSlider" class="form-label">
+                <span style="color: #990000; font-size: 1.5rem;">Quantum Annealing Time:</span>
+                <span id="selectedAnnealingTimeLabel"
+                      style="color: #990000; font-weight: bold; font-size: 1.75rem; background-color: #FFCC00; padding: 0 5px; border-radius: 5px;">
+                      1</span>
+                <span style="color: #990000; font-size: 1.5rem;">seconds</span>
+            </label>
+            <input
+                    type="range"
+                    id="annealingTimeSlider"
+                    min="0"
+                    max="7"
+                    step="1"
+                    class="form-range"
+                    value="4"
+            />
+        </div>
+    </div>
+
+    <!-- Scheme -->
+    <div class="row mt-4 justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="d-flex justify-content-center align-items-center">
+                <img
+                        id="schemeImage"
+                        src="assets/chain.png"
+                        alt="Scheme Image"
+                        class="img-fluid border me-3"
+                        style="max-height: 120px; width: auto;"
+                />
+                <div>
+                    <label for="schemeSelect" class="form-label" style="font-size: 1.5rem; color: #990000;">
+                        Scheme
+                    </label>
+                    <select class="form-select w-auto" id="schemeSelect">
+                        <option value="chain">Chain</option>
+                        <option value="cycle">Cycle</option>
+                        <option value="star">Star</option>
+                        <option value="tree">Tree</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- #Relations -->
+    <div class="row mt-3 justify-content-center">
+        <div class="col-md-8 text-center">
+            <label for="relationsSlider" class="form-label">
+                <span style="color: #990000; font-size: 1.5rem;">#Relations:</span>
+                <span id="selectedRelationsLabel"
+                      style="color: #990000; font-weight: bold; font-size: 1.75rem; background-color: #FFCC00; padding: 0 5px; border-radius: 5px;">
+                      18
+                </span>
+            </label>
+            <input
+                    type="range"
+                    id="relationsSlider"
+                    min="0"
+                    max="8"
+                    step="1"
+                    class="form-range"
+                    value="0"
+            />
+        </div>
+    </div>
+
+    <!-- Query ID -->
+    <div class="row mt-3 justify-content-center">
+        <div class="col-md-6 d-flex align-items-center justify-content-center">
+            <label for="queryIdSelect" class="form-label" style="font-size: 1.5rem; color: #990000; margin-right: 10px;">
+                Query ID
+            </label>
+            <select class="form-select w-auto" id="queryIdSelect" style="text-align: center;">
+                <script>
+                    for (let i = 1; i <= 10; i++) {
+                        document.write(`<option value="${i}">${i}</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="text-center mt-3">
+        <button class="btn btn-primary btn-lg" id="submitQuantumManipulation">
+            Submit
+        </button>
+    </div>
+
+    <br>
+    <div class="d-flex justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm flex-grow-1">
+                <div class="card-header">
+                    <strong>NL-Solver</strong>
+                </div>
+                <div class="container mt-4">
+                    <h4 class="text-center mb-4">Parameters</h4>
+                    <table class="table table-bordered table-hover">
+                        <thead class="custom-table-header">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                        </tr>
+                        </thead>
+                        <tbody id="NLSolverParametersTable">
+                        <!-- 动态填充数据 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-body text-center">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <h4 class="text-center mb-6">DB Cost:&nbsp;</h4>
+                    </div>
+                    <h3 id="nlDBCost"></h3>
+                </div>
+
+
+                <!-- Timing Information Section -->
+                <div class="container mt-4">
+                    <h4 class="text-center mb-4">Timing Information</h4>
+                    <table class="table table-bordered table-hover">
+                        <thead class="custom-table-header">
+                        <tr>
+                            <th>Timing Metric</th>
+                            <th>Time (s)</th>
+                        </tr>
+                        </thead>
+                        <tbody id="NLSolverTimingTable">
+                        <!-- 动态填充 NLSolver 的 Timing 信息 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br><br><br><br><br>
+<br><br><br><br><br>
+<script>
+    const {createApp} = Vue;
+
+    // Visualization Button Click Events
+    $('#visualizeQuantumBtn').on('click', function () {
+        visualizePlan('quantum');
+    });
+
+    $('#visualizePostgresBtn').on('click', function () {
+        visualizePlan('postgres');
+    });
+
+    function visualizePlan(type) {
+        console.log(type);
+
+        // Send the request to the backend to get the query plan
+        $.post("/visualize-plan", {type: type}, function (data) {
+            if (data.plan) {
+                console.log("Updating Vue instance with plan:", data.plan);
+
+                // Ensure the DOM is ready
+                $(document).ready(function () {
+                    if (type === "quantum") {
+                        // Remove existing Vue app container for quantum
+                        $("#vueApp1").remove();
+
+                        // Create new container for quantum plan
+                        $(".plan-compare").append('<div id="vueApp1"><h2>Quantum-Augmented Query Plan</h2><pev2 :plan-source="plan" plan-query=""/></div>');
+
+                        // Mount the Vue app for quantum
+                        const vueApp1 = createApp({
+                            data() {
+                                return {
+                                    plan: data.plan, // Use the plan data from the backend
+                                };
+                            },
+                        });
+                        vueApp1.component("pev2", pev2.Plan);
+                        vueApp1.mount("#vueApp1");
+                        console.log("Mounted Vue App1 (Quantum):", vueApp1);
+
+                    } else if (type === "postgres") {
+                        // Remove existing Vue app container for PostgreSQL
+                        $("#vueApp2").remove();
+
+                        // Create new container for PostgreSQL plan
+                        $(".plan-compare").append('<div id="vueApp2"><h2>PostgreSQL Query Plan</h2><pev2 :plan-source="plan" plan-query=""/></div>');
+
+                        // Mount the Vue app for PostgreSQL
+                        const vueApp2 = createApp({
+                            data() {
+                                return {
+                                    plan: data.plan,
+                                };
+                            },
+                        });
+                        vueApp2.component("pev2", pev2.Plan);
+                        vueApp2.mount("#vueApp2");
+                        console.log("Mounted Vue App2 (PostgreSQL):", vueApp2);
+                    } else {
+                        console.error("Unknown type:", type);
+                        alert("Unknown type specified for visualization.");
+                    }
+                });
+            } else {
+                console.error("Failed to load plan, server response:", data);
+                alert("Failed to load visualization plan. Please try again.");
+            }
+        }).fail(function (xhr, status, error) {
+            console.error("Request failed:", status, error);
+            console.error("Response from server:", xhr.responseText);
+            alert("Error occurred while loading visualization plan.");
+        });
+    }
+
+    // Function to adjust the height of the div
+    function adjustDivHeight(div) {
+        div.style.height = "auto"; // Reset height to calculate actual scroll height
+        div.style.height = div.scrollHeight + "px"; // Set height to scroll height
+    }
+
+    // Highlighter function for SQL keywords
+    function highlightSQLContent(content) {
+        const keywords = /\b(SELECT|FROM|WHERE|AND|AS|LIKE|JOIN|ON|OR|GROUP BY|ORDER BY|INSERT|UPDATE|DELETE|INTO|VALUES|LIMIT|OFFSET|DISTINCT|INNER|OUTER|LEFT|RIGHT|FULL)\b/gi;
+        return content.replace(keywords, (match) => `<span style="color: #990000; font-weight: bold;">${match}</span>`);
+    }
+
+    // When an SQL file is selected, fetch its content and display it in the SQL Information box
+    $('#sqlFile').on('change', function () {
+        let selectedFile = $('#sqlFile').val();
+        let selectedBenchmark = $('#benchmark').val();
+
+        if (!selectedBenchmark || !selectedFile) {
+            alert("Please select both a benchmark and an SQL file.");
+            return;
+        }
+
+        // Pass the benchmark and SQL file name (query_group) to the backend
+        $.get('/fetch-sql', {benchmark: selectedBenchmark, query_group: selectedFile}, function (data) {
+            const rawSQL = data.sql_content;
+            const highlightedSQL = highlightSQLContent(rawSQL); // Apply highlighting
+
+            const sqlInfoDiv = document.getElementById('sqlInfo');
+            sqlInfoDiv.innerHTML = highlightedSQL; // Display highlighted content
+            adjustDivHeight(sqlInfoDiv); // Adjust height dynamically
+        }).fail(function () {
+            alert("Failed to load SQL content. Please try again.");
+        });
+    });
+
+    // When the Run button is clicked, clear the Quantum and Default Postgres text areas and execute the query
+    $('#runBtn').on('click', function () {
+        let selectedFile = $('#sqlFile').val();
+        if (!selectedFile) {
+            alert("Please select an SQL file to run.");
+            return;
+        }
+
+        clearPreviousOutput();
+
+        // Send two asynchronous requests to fetch Quantum and Postgres execution results
+        $.post('/run-quantum', {sql_file: selectedFile}, function (data) {
+            $('#quantumOutput').val(data.result);
+            updateQuantumOutput(data);
+        });
+
+        $.post('/run-default', {sql_file: selectedFile}, function (data) {
+            $('#postgresOutput').val(data.result);
+            updatePostgresOutput(data);
+        });
+    });
+
+    function clearPreviousOutput() {
+        $("#vueApp1").remove();
+        $("#vueApp2").remove();
+
+        $('#quantumOutput').val("");
+        $('#postgresOutput').val("");
+
+        const joinOrder = document.getElementById("joinOrder");
+        const joinOrderHint = document.getElementById("joinOrderHint");
+        joinOrder.textContent = "";
+        joinOrderHint.textContent = "";
+
+        const quantumResultsHeader = document.getElementById("quantumResultsHeader");
+        const quantumResultsTable = document.getElementById("quantumResultsTable");
+        quantumResultsHeader.innerHTML = "";
+        quantumResultsTable.innerHTML = "";
+        const quantumTimingTable = document.getElementById("quantumTimingTable");
+        quantumTimingTable.innerHTML = "";
+
+        const postgresqlResultsHeader = document.getElementById("postgresqlResultsHeader");
+        const postgresqlResultsTable = document.getElementById("postgresqlResultsTable");
+        postgresqlResultsHeader.innerHTML = "";
+        postgresqlResultsTable.innerHTML = "";
+        const postgresqlTimingTable = document.getElementById("postgresqlTimingTable");
+        postgresqlTimingTable.innerHTML = "";
+    }
+
+    function updateQuantumOutput(data) {
+        const joinOrder = document.getElementById("joinOrder");
+        const joinOrderHint = document.getElementById("joinOrderHint");
+
+        function updateQuantumJoinOrder(data) {
+            // Update Quantum Output
+            joinOrder.textContent = data.joinOrder || "";
+            joinOrderHint.textContent = data.joinOrderHint || "";
+        };
+
+        function updateQuantumQueryResults(data) {
+            const quantumResultsHeader = document.getElementById("quantumResultsHeader");
+            const quantumResultsTable = document.getElementById("quantumResultsTable");
+
+            quantumResultsHeader.innerHTML = "";
+            quantumResultsTable.innerHTML = "";
+
+            // Dynamic Generate Table - QuantumQueryResult
+            if (data.quantumQueryResult.length > 0) {
+                const quantumKeys = Object.keys(data.quantumQueryResult[0]);
+                const quantumHeaderRow = document.createElement("tr");
+                quantumKeys.forEach((key) => {
+                    const th = document.createElement("th");
+                    th.textContent = key.replace(/_/g, " ").toUpperCase();
+                    quantumHeaderRow.appendChild(th);
+                });
+                quantumResultsHeader.appendChild(quantumHeaderRow);
+
+                data.quantumQueryResult.forEach((row) => {
+                    const tr = document.createElement("tr");
+                    quantumKeys.forEach((key) => {
+                        const td = document.createElement("td");
+                        td.textContent = row[key];
+                        tr.appendChild(td);
+                    });
+                    quantumResultsTable.appendChild(tr);
+                });
+            }
+        }
+
+        function updateQuantumTimingInfo(data) {
+            const quantumTimingTable = document.getElementById("quantumTimingTable");
+
+            quantumTimingTable.innerHTML = "";
+
+            const quantumTimingData = [
+                {metric: "QPU Access Time", value: data.quantumPlanningTime},
+                {metric: "Quantum-augmented Planning Time", value: data.quantumPostgresPlanTime},
+                {metric: "Query Execution Time (on PostgreSQL)", value: data.quantumExecutionTime},
+                {#{metric: "End-to-End Time", value: data.quantumEndtoEndTime},#}
+            ];
+
+            quantumTimingData.forEach((item) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td>${item.metric}</td>
+            <td>${item.value}</td>
+        `;
+                quantumTimingTable.appendChild(tr);
+            });
+        }
+
+        updateQuantumJoinOrder(data);
+        updateQuantumQueryResults(data);
+        updateQuantumTimingInfo(data);
+    }
+
+    function updatePostgresOutput(data) {
+        function updatePostgresQueryResults(data) {
+            const postgresqlResultsHeader = document.getElementById("postgresqlResultsHeader");
+            const postgresqlResultsTable = document.getElementById("postgresqlResultsTable");
+
+            postgresqlResultsHeader.innerHTML = "";
+            postgresqlResultsTable.innerHTML = "";
+
+            // Dynamic Generate Table - postgresQueryResult
+            if (data.postgresQueryResult.length > 0) {
+                const postgresKeys = Object.keys(data.postgresQueryResult[0]);
+                const postgresHeaderRow = document.createElement("tr");
+                postgresKeys.forEach((key) => {
+                    const th = document.createElement("th");
+                    th.textContent = key.replace(/_/g, " ").toUpperCase();
+                    postgresHeaderRow.appendChild(th);
+                });
+                postgresqlResultsHeader.appendChild(postgresHeaderRow);
+
+                data.postgresQueryResult.forEach((row) => {
+                    const tr = document.createElement("tr");
+                    postgresKeys.forEach((key) => {
+                        const td = document.createElement("td");
+                        td.textContent = row[key];
+                        tr.appendChild(td);
+                    });
+                    postgresqlResultsTable.appendChild(tr);
+                });
+            }
+        }
+
+        function updatePostgresTimingInfo(data) {
+            const postgresqlTimingTable = document.getElementById("postgresqlTimingTable");
+
+            postgresqlTimingTable.innerHTML = "";
+
+            const postgresqlTimingData = [
+                {metric: "Planning Time", value: data.postgresPlanningTime},
+                {metric: "Execution Time", value: data.postgresExecutionTime},
+            ];
+
+            postgresqlTimingData.forEach((item) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td>${item.metric}</td>
+            <td>${item.value.toFixed(3)}</td>
+        `;
+                postgresqlTimingTable.appendChild(tr);
+            });
+        }
+
+        updatePostgresQueryResults(data);
+        updatePostgresTimingInfo(data);
+    }
+
+
+    // Execution Result -> mockData
+    // Can be replaced by reformat the code
+    document.addEventListener("DOMContentLoaded", function () {
+        {#const quantumOutput = document.getElementById("quantumOutput");#}
+        {#const postgresOutput = document.getElementById("postgresOutput");#}
+        const joinOrder = document.getElementById("joinOrder");
+        const joinOrderHint = document.getElementById("joinOrderHint");
+
+
+        // Function to update outputs and charts dynamically
+        function updateOutput(data) {
+            // Update Quantum Output
+            {#quantumOutput.value = data.quantumResult || "No Data";#}
+            joinOrder.textContent = data.joinOrder || "No Data";
+            joinOrderHint.textContent = data.joinOrderHint || "No Data";
+
+            // Update PostgreSQL Output
+            {#postgresOutput.value = data.postgresResult || "No Data";#}
+
+            updateQueryResults(data);
+            updateTimingInfo(data);
+        };
+
+        function updateQueryResults(data) {
+            const quantumResultsHeader = document.getElementById("quantumResultsHeader");
+            const quantumResultsTable = document.getElementById("quantumResultsTable");
+            const postgresqlResultsHeader = document.getElementById("postgresqlResultsHeader");
+            const postgresqlResultsTable = document.getElementById("postgresqlResultsTable");
+
+            quantumResultsHeader.innerHTML = "";
+            quantumResultsTable.innerHTML = "";
+            postgresqlResultsHeader.innerHTML = "";
+            postgresqlResultsTable.innerHTML = "";
+
+            // Dynamic Generate Table - QuantumQueryResult
+            if (data.quantumQueryResult.length > 0) {
+                const quantumKeys = Object.keys(data.quantumQueryResult[0]);
+                const quantumHeaderRow = document.createElement("tr");
+                quantumKeys.forEach((key) => {
+                    const th = document.createElement("th");
+                    th.textContent = key.replace(/_/g, " ").toUpperCase();
+                    quantumHeaderRow.appendChild(th);
+                });
+                quantumResultsHeader.appendChild(quantumHeaderRow);
+
+                data.quantumQueryResult.forEach((row) => {
+                    const tr = document.createElement("tr");
+                    quantumKeys.forEach((key) => {
+                        const td = document.createElement("td");
+                        td.textContent = row[key];
+                        tr.appendChild(td);
+                    });
+                    quantumResultsTable.appendChild(tr);
+                });
+            }
+
+            // Dynamic Generate Table - postgresQueryResult
+            if (data.postgresQueryResult.length > 0) {
+                const postgresKeys = Object.keys(data.postgresQueryResult[0]);
+                const postgresHeaderRow = document.createElement("tr");
+                postgresKeys.forEach((key) => {
+                    const th = document.createElement("th");
+                    th.textContent = key.replace(/_/g, " ").toUpperCase();
+                    postgresHeaderRow.appendChild(th);
+                });
+                postgresqlResultsHeader.appendChild(postgresHeaderRow);
+
+                data.postgresQueryResult.forEach((row) => {
+                    const tr = document.createElement("tr");
+                    postgresKeys.forEach((key) => {
+                        const td = document.createElement("td");
+                        td.textContent = row[key];
+                        tr.appendChild(td);
+                    });
+                    postgresqlResultsTable.appendChild(tr);
+                });
+            }
+        }
+
+        function updateTimingInfo(data) {
+            const quantumTimingTable = document.getElementById("quantumTimingTable");
+            const postgresqlTimingTable = document.getElementById("postgresqlTimingTable");
+
+            quantumTimingTable.innerHTML = "";
+            postgresqlTimingTable.innerHTML = "";
+
+            const quantumTimingData = [
+                {metric: "QPU Access Time", value: data.quantumPlanningTime},
+                {metric: "Quantum-augmented Planning Time", value: data.quantumPostgresPlanTime},
+                {metric: "Query Execution Time (on PostgreSQL)", value: data.quantumExecutionTime},
+                {#{metric: "End-to-End Time", value: data.quantumEndtoEndTime},#}
+            ];
+
+            quantumTimingData.forEach((item) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td>${item.metric}</td>
+            <td>${item.value}</td>
+        `;
+                quantumTimingTable.appendChild(tr);
+            });
+
+            // PostgreSQL Timing 信息
+            const postgresqlTimingData = [
+                {metric: "Planning Time", value: data.postgresPlanningTime},
+                {metric: "Execution Time", value: data.postgresExecutionTime},
+            ];
+
+            postgresqlTimingData.forEach((item) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td>${item.metric}</td>
+            <td>${item.value.toFixed(3)}</td>
+        `;
+                postgresqlTimingTable.appendChild(tr);
+            });
+        }
+
+        const mockData = {
+            quantumResult: "quantum result ...",
+            quantumQueryResult: [{'movie_keyword': 'based-on-comic', 'actor_name': 'Downey Jr., Robert', 'hero_movie': '2008 MTV Movie Awards'}],
+            joinOrder: "3 0 2 1 4",
+            joinOrderHint: "/*+ Leading (n ci mk k t) */",
+            quantumPlanningTime: 31.902,
+            quantumExecutionTime: 266.110,
+            quantumPostgresPlanTime: 0.988,
+            quantumEndtoEndTime: 10000,
+
+            postgresResult: "postgresql result ...",
+            postgresQueryResult: [
+                {movie_keyword: "based-on-comic", actor_name: "Robert Downey Jr.", hero_movie: "Iron Man"},
+                {movie_keyword: "hero", actor_name: "Chris Evans", hero_movie: "Captain America"},
+            ],
+            postgresPlanningTime: 1.06,
+            postgresExecutionTime: 138.11,
+        };
+
+        {#updateOutput(mockData);#}
+    });
+
+    // Quantum Annealing Time
+    const annealingTimes = [0.01, 0.05, 0.1, 0.5, 1, 2, 3, 5];
+    const annealingTimeSlider = document.getElementById("annealingTimeSlider");
+    const selectedAnnealingTimeLabel = document.getElementById("selectedAnnealingTimeLabel");
+
+    annealingTimeSlider.addEventListener("input", function () {
+        const index = annealingTimeSlider.value;
+        const selectedTime = annealingTimes[index];
+        selectedAnnealingTimeLabel.textContent = selectedTime;
+        console.log("Selected Annealing Time:", selectedTime);
+    });
+
+    // Scheme Selection and Image Update
+    const schemeSelect = document.getElementById("schemeSelect");
+    const schemeImage = document.getElementById("schemeImage");
+
+    schemeSelect.addEventListener("change", function () {
+        const selectedScheme = schemeSelect.value;
+        const imagePath = `assets/${selectedScheme}.png`; // Assuming images are named as scheme type
+        schemeImage.src = imagePath;
+        console.log("Selected Scheme:", selectedScheme, "Image Path:", imagePath);
+    });
+
+    // #Relations Slider
+    const relationsValues = [18, 22, 26, 30, 34, 38, 42, 46, 50];
+    const relationsSlider = document.getElementById("relationsSlider");
+    const selectedRelationsLabel = document.getElementById("selectedRelationsLabel");
+
+    relationsSlider.addEventListener("input", function () {
+        const index = relationsSlider.value;
+        const selectedRelations = relationsValues[index];
+        selectedRelationsLabel.textContent = selectedRelations;
+        console.log("Selected #Relations:", selectedRelations);
+    });
+
+    function updateNLSolver(data) {
+        function updateNLSolverParameters(data) {
+            const nlSolverParametersTable = document.getElementById("NLSolverParametersTable");
+
+            nlSolverParametersTable.innerHTML = "";
+
+            const nlSolverParametersData = [
+                {metric: "Relations", value: data.relations},
+                {metric: "Annealing Time", value: data.annealing_time},
+            ];
+
+            nlSolverParametersData.forEach((item) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td>${item.metric}</td>
+            <td>${item.value}</td>
+        `;
+                nlSolverParametersTable.appendChild(tr);
+            });
+        }
+
+        function updateNLSolverTimingInfo(data) {
+            const nlSolverTimingTable = document.getElementById("NLSolverTimingTable");
+
+            nlSolverTimingTable.innerHTML = "";
+
+            const nlSolverTimingData = [
+                {metric: "Problem Encoding", value: data.nl_query_optimization_time},
+                {metric: "Sampler Initialization", value: data.nl_initialize_sampler_time},
+                {metric: "Asynchronous Execution", value: data.nl_solver_sample_time},
+                {metric: "Final Result Retrieval", value: data.nl_fetch_join_order_time},
+                {#{metric: "End-to-End Time", value: data.quantumEndtoEndTime},#}
+            ];
+
+            nlSolverTimingData.forEach((item) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td>${item.metric}</td>
+            <td>${item.value.toFixed(3)}</td>
+        `;
+                nlSolverTimingTable.appendChild(tr);
+            });
+        }
+
+        function updateNLSolverDBCost(data) {
+            const nlDBCost = document.getElementById("nlDBCost");
+            nlDBCost.textContent = data.db_cost;
+        }
+
+        updateNLSolverDBCost(data);
+        updateNLSolverParameters(data);
+        updateNLSolverTimingInfo(data);
+
+    }
+
+    // Submit Quantum Manipulation Parameters
+    $('#submitQuantumManipulation').on('click', function () {
+        const scheme = schemeSelect.value;
+        const queryId = $('#queryIdSelect').val();
+        const annealingTime = annealingTimes[annealingTimeSlider.value];
+        const relations = relationsValues[relationsSlider.value];
+
+        if (!scheme || !queryId || !relations || !annealingTime) {
+            alert("Please select all options.");
+            return;
+        }
+
+        clearPreviousSettingNLSolver();
+
+        function clearPreviousSettingNLSolver() {
+            const nlSolverParametersTable = document.getElementById("NLSolverParametersTable");
+            nlSolverParametersTable.innerHTML = "";
+            const nlSolverTimingTable = document.getElementById("NLSolverTimingTable");
+            nlSolverTimingTable.innerHTML = "";
+            const nlDBCost = document.getElementById("nlDBCost");
+            nlDBCost.textContent = "";
+        }
+
+        console.log("Submitting parameters - Scheme:", scheme, "Query ID:", queryId, "Annealing Time:", annealingTime, "#Relations:", relations);
+
+        // Send parameters to the backend
+        $.ajax({
+            url: "/process-quantum-manipulation",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+                scheme: scheme,
+                query_id: queryId,
+                annealing_time: annealingTime,
+                relations: relations,
+            }),
+            success: function (response) {
+                console.log("Response from server:", response);
+                updateNLSolver(response);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error submitting parameters:", status, error);
+            },
+        });
+    })
+
+</script>
+</body>
+</html>

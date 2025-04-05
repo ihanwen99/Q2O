@@ -1,0 +1,27 @@
+# Quantum computing
+dimod==0.12.17
+dwave-cloud-client==0.13.1
+dwave-greedy==0.3.0
+dwave-hybrid==0.6.12
+dwave-system==1.26.0
+
+# Data analysis
+pandas==2.0.3
+numpy==1.24.4
+scipy==1.10.1
+
+# Database interaction
+psycopg2-binary==2.9.10
+sqlparse==0.4.4
+
+# Web framework
+Flask==3.0.3
+Jinja2==3.1.4
+Werkzeug==3.0.6
+
+# Networking
+requests==2.32.3
+urllib3==2.2.3
+
+natsort
+absl-py
