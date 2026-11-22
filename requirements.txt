@@ -1,0 +1,12 @@
+dimod
+dwave-cloud-client
+dwave-optimization==0.6.1
+dwave-system
+Flask
+Jinja2
+Werkzeug
+natsort
+numpy
+psycopg2-binary
+absl-py
+sqlparse
